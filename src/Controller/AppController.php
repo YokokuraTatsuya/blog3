@@ -15,7 +15,6 @@
 namespace App\Controller;
 
 use Cake\Controller\Controller;
-use Cake\Event\Event;
 
 /**
  * Application Controller
@@ -43,8 +42,8 @@ class AppController extends Controller
 
         $this->loadComponent('RequestHandler');
         $this->loadComponent('Flash');
-
         $this->loadComponent('Auth', [
+            'authorize'=> 'Controller',
             'authenticate' => [
                 'Form' => [
                     'fields' => [
@@ -57,13 +56,15 @@ class AppController extends Controller
                 'controller' => 'Users',
                 'action' => 'login'
             ],
-            // 未認証の場合、直前のページに戻します
             'unauthorizedRedirect' => $this->referer()
         ]);
 
-        // display アクションを許可して、PagesController が引き続き
-        // 動作するようにします。また、読み取り専用のアクションを有効にします。
         $this->Auth->allow(['display', 'view', 'index']);
 
+    }
+
+    public function isAuthoried($user)
+    {
+        return false;
     }
 }

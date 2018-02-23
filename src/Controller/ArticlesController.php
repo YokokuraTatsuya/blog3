@@ -11,6 +11,7 @@ class ArticlesController extends AppController
 
     $this->loadComponent('Paginator');
     $this->loadComponent('Flash');
+    $this->Auth->allow(['tags']);
   }
 
   public function index()
@@ -25,14 +26,14 @@ class ArticlesController extends AppController
     $this->set(compact('article'));
   }
 
+
   public function add()
   {
     $article = $this->Articles->newEntity();
     if ($this->request->is('post')) {
       $article = $this->Articles->patchEntity($article, $this->request->getData());
 
-      // user_id の決め打ちは一時的なもので、あとで認証を構築する際に削除されます。
-      $article->user_id = 1;
+      $article->user_id = $this->Auth->user('id');
 
       if ($this->Articles->save($article)) {
         $this->Flash->success(__('Your article has been saved.'));
@@ -40,16 +41,20 @@ class ArticlesController extends AppController
       }
       $this->Flash->error(__('Unable to add your article.'));
     }
-    $tags = $this->Articles->Tags->find('list');
-    $this->set('tags', $tags);
     $this->set('article', $article);
   }
 
   public function edit($slug)
   {
-    $article = $this->Articles->findBySlug($slug)->firstOrFail();
+    $article = $this->Articles
+      ->findBySlug($slug)
+      ->contain('Tags')
+      ->firstOrFail();
+
     if ($this->request->is(['post', 'put'])) {
-      $this->Articles->patchEntity($article, $this->request->getData());
+      $this->Articles->patchEntity($article, $this->request->getData(), [
+        'accessibleFields' => ['user_id' => false]
+      ]);
       if ($this->Articles->save($article)) {
         $this->Flash->success(__('Your article has been updated.'));
         return $this->redirect(['action' => 'index']);
@@ -84,6 +89,23 @@ class ArticlesController extends AppController
       'articles' => $articles,
       'tags' => $tags
     ]);
+  }
+
+  public function isAuthorized($user)
+  {
+    $action = $this->request->getParam('action');
+    if (in_array($action, ['add', 'tags'])) {
+      return true;
+    }
+
+    $slug = $this->request->getParam('pass.0');
+    if (!$slug) {
+      return false;
+    }
+
+    $article = $this->Articles->findBySlug($slug)->first();
+
+    return $article->user_id === $user['id'];
   }
 
 }
