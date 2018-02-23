@@ -5,3 +5,8 @@
 .top-bar-section ul.session_box {
   margin-left: 30px;
 }
+nav.nav_fix {
+  position: fixed;
+  z-index: 100;
+  width: 100%;
+}

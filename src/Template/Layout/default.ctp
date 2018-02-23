@@ -35,7 +35,7 @@ $cakeDescription = 'CakePHP: the rapid development php framework';
     <?= $this->fetch('script') ?>
 </head>
 <body>
-    <nav class="top-bar expanded" data-topbar role="navigation">
+    <nav class="top-bar expanded nav_fix" data-topbar role="navigation">
         <ul class="title-area large-3 medium-4 columns">
             <li class="name">
                 <h1><a href=""><?= $this->fetch('title') ?></a></h1>
@@ -43,6 +43,7 @@ $cakeDescription = 'CakePHP: the rapid development php framework';
         </ul>
         <div class="top-bar-section">
             <ul class="session_box">
+                <li><?= $this->Html->link('HOME', '/articles') ?></li>
                 <li><?= $this->Html->link('ログイン', '/users/add') ?></li>
                 <li><?= $this->Html->link('ログアウト', '/users/logout') ?></li>
             </ul>
